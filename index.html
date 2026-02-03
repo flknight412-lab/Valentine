@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>For You ❤️</title>
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg,#ff758c,#ff7eb3,#ffc3a0);
+      overflow: hidden;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      color: white;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 44px;
+      margin-bottom: 40px;
+      text-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      z-index: 2;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 25px;
+      z-index: 2;
+    }
+
+    button {
+      font-size: 22px;
+      padding: 16px 36px;
+      border-radius: 18px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    #yes {
+      background: #ff3366;
+      color: white;
+    }
+
+    #yes:hover {
+      transform: scale(1.12);
+    }
+
+    #noBtn {
+      position: fixed;
+      background: white;
+      color: black;
+      font-weight: bold;
+      z-index: 3;
+    }
+
+    /* floating hearts */
+    .heart {
+      position: fixed;
+      pointer-events: none;
+      opacity: 0.18;
+      z-index: 0;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Will you be my Valentine? 💖</h1>
+
+<div class="buttons">
+  <button id="yes">YES 😍</button>
+  <button id="noBtn">No 🙄</button>
+</div>
+
+<script>
+const btn = document.getElementById("noBtn");
+const yesBtn = document.getElementById("yes");
+
+////////////////////////////////////////////////////
+// Initial NO placement
+////////////////////////////////////////////////////
+let x = window.innerWidth/2 + 90;
+let y = window.innerHeight/2 + 35;
+
+btn.style.left = x + "px";
+btn.style.top  = y + "px";
+
+////////////////////////////////////////////////////
+// Smooth dodge logic
+////////////////////////////////////////////////////
+const SAFE_DISTANCE = 120;
+const SPEED = 0.25;
+
+let mouseX = x;
+let mouseY = y;
+
+function clamp(v,min,max){
+  return Math.max(min, Math.min(v,max));
+}
+
+document.addEventListener("mousemove", e=>{
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+});
+
+document.addEventListener("touchmove", e=>{
+  mouseX = e.touches[0].clientX;
+  mouseY = e.touches[0].clientY;
+});
+
+function animate(){
+
+  const rect = btn.getBoundingClientRect();
+
+  const dx = x - mouseX;
+  const dy = y - mouseY;
+
+  const dist = Math.sqrt(dx*dx + dy*dy);
+
+  if(dist < SAFE_DISTANCE){
+    const angle = Math.atan2(dy, dx);
+
+    const targetX = mouseX + Math.cos(angle)*SAFE_DISTANCE;
+    const targetY = mouseY + Math.sin(angle)*SAFE_DISTANCE;
+
+    x += (targetX - x)*SPEED;
+    y += (targetY - y)*SPEED;
+  }
+
+  x = clamp(x, 0, window.innerWidth-rect.width);
+  y = clamp(y, 0, window.innerHeight-rect.height);
+
+  btn.style.left = x+"px";
+  btn.style.top  = y+"px";
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+////////////////////////////////////////////////////
+// Floating hearts (JS-based, reliable)
+////////////////////////////////////////////////////
+function createHearts(){
+
+  setInterval(()=>{
+
+    const h = document.createElement("div");
+    h.innerHTML = "💖";
+    h.className = "heart";
+
+    h.style.left = Math.random()*100 + "vw";
+    h.style.top = "-30px";
+    h.style.fontSize = (16 + Math.random()*20) + "px";
+
+    document.body.appendChild(h);
+
+    let y = -30;
+    const speed = 1 + Math.random()*2;
+
+    const fall = setInterval(()=>{
+      y += speed;
+      h.style.top = y + "px";
+
+      if(y > window.innerHeight){
+        clearInterval(fall);
+        h.remove();
+      }
+    }, 16);
+
+  }, 250);
+}
+
+createHearts();
+
+////////////////////////////////////////////////////
+// YES click → clean ending (NO extra gradient!)
+////////////////////////////////////////////////////
+yesBtn.onclick = () => {
+
+  document.body.innerHTML = `
+    <div style="
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      color:white;
+      font-family:Arial,sans-serif;
+    ">
+
+      <h1 style="font-size:60px; margin-bottom:25px;">
+        YAYYYYY ❤️
+      </h1>
+
+      <img
+        src="https://gifdb.com/images/high/cute-dudu-dancing-m92104t9gi7xpda6.gif"
+        style="
+          width:280px;
+          border-radius:20px;
+          box-shadow:0 10px 30px rgba(0,0,0,0.3);
+        "
+      >
+
+      <p style="font-size:22px; margin-top:20px;">
+        Best decision ever 🥰
+      </p>
+
+    </div>
+  `;
+};
+</script>
+
+</body>
+</html>
